@@ -7,18 +7,34 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-# uncomment the following section in order to fill in
-# further dependencies manually.
-# find_package(<dependency> REQUIRED)
+find_package(rclcpp REQUIRED)
 
-add_executable(mmr_kria_base src/mmr_kria_base.cpp)
-target_include_directories(mmr_kria_base PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>)
-target_compile_features(mmr_kria_base PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
+include_directories(include)
+include_directories(${CMAKE_CURRENT_LIST_DIR})
 
-install(TARGETS mmr_kria_base
-  DESTINATION lib/${PROJECT_NAME})
+link_directories(/usr/lib)
+
+add_library(${PROJECT_NAME}
+  src/edf_node.cpp
+)
+
+ament_target_dependencies(${PROJECT_NAME}
+  rclcpp
+)
+
+ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
+
+install(TARGETS ${PROJECT_NAME}
+   EXPORT ${PROJECT_NAME}
+   ARCHIVE DESTINATION lib
+   LIBRARY DESTINATION lib
+   RUNTIME DESTINATION bin
+   INCLUDES DESTINATION include
+ )
+
+
+install(DIRECTORY include/${PROJECT_NAME}/
+  DESTINATION include/${PROJECT_NAME})
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -31,5 +47,17 @@ if(BUILD_TESTING)
   set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
 endif()
+
+# Install launch directory
+# install(DIRECTORY
+#   launch
+#   DESTINATION share/${PROJECT_NAME}
+# )
+
+# # Install config directory
+# install(DIRECTORY
+#   config
+#   DESTINATION share/${PROJECT_NAME}
+# )
 
 ament_package()
