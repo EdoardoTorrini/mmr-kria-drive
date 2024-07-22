@@ -1,0 +1,8 @@
+/apps_actuator_node:
+  ros__parameters:
+    generic:
+      spi_device: "/dev/spidev1.0"
+      speed: 50000
+      period: 1000000000 # 10ms
+    topic:
+      appsTopic: "/apps/percentage"

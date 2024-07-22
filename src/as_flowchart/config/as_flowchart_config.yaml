@@ -1,0 +1,4 @@
+/as_flowchart_node:
+  ros__parameters:
+    topic:
+      ebsTopic: "/ebs/status"
