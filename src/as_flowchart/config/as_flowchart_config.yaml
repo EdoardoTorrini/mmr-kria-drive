@@ -1,9 +1,0 @@
-/as_flowchart_node:
-  ros__parameters:
-    generic:
-      WCET: 5000000 # ms
-      period: 10000000 # 10ms
-      deadline: 10000000
-    topic:
-      ebsTopic: "/ebs/status"
-      canTopic: "/canbus/msg"
