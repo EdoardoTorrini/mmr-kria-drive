@@ -29,4 +29,28 @@ void EBSSupervisor::loadParameters()
     get_parameter("topic.ebsStatusTopic", this->m_sTopicEBS);
 }
 
-void EBSSupervisor::msgCANBusCallback(const can_msgs::msg::Frame::SharedPtr canbus_msg) {}
+void EBSSupervisor::msgCANBusCallback(const can_msgs::msg::Frame::SharedPtr canbus_msg)
+{
+    switch (canbus_msg->id)
+    {
+        case RES::MMR_RES_STATUS:
+            this->m_bEmergency = canbus_msg->data[0] & RES::RES_SIGNAL_EMERGENCY;
+            this->m_bGoSignal = canbus_msg->data[0] & RES::RES_SIGNAL_GO;
+            this->m_bBagSignal = canbus_msg->data[0] & RES::RES_SIGNAL_BAG;
+            break;
+
+        case ECU::MMR_ECU_SAFETY_CHECK:
+            memcpy(&this->m_fPressionBrakeFront, canbus_msg->data.begin(), 2);
+            memcpy(&this->m_fPressionBrakeFront, canbus_msg->data.begin() + 2, 2);
+            break;
+        
+        case ECU::MMR_ECU_EBS_PRESSURE:
+            memcpy(&this->m_fEBSPression1, canbus_msg->data.begin(), 4);
+            memcpy(&this->m_fEBSPression2, canbus_msg->data.begin() + 4, 4);
+            break;
+
+        case COCKPIT::MMR_MISSION_SELECTED:
+            this->m_bIsAutonomousMission = (int)canbus_msg->data[0] != COCKPIT::MMR_MISSION_MANUAL ? true : false;
+            break;
+    }
+}

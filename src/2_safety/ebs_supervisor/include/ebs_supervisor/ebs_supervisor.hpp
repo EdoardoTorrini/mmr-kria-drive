@@ -19,6 +19,15 @@ class EBSSupervisor : public EDFNode
         int m_nPeriod, m_nWCET, m_nDeadline;
 
         bool m_bRESEmegency;
+    
+        /* value from ECU */
+        float m_fPressionBrakeRear, m_fPressionBrakeFront, m_fEBSPression1, m_fEBSPression2;
+
+        /* status of the RES */
+        bool m_bEmergency, m_bGoSignal, m_bBagSignal;
+
+        /* status of autonomous mission */
+        bool m_bIsAutonomousMission;
 
         void loadParameters();
 
