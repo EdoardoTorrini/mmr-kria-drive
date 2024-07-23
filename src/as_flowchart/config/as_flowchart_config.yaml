@@ -1,4 +1,7 @@
 /as_flowchart_node:
   ros__parameters:
+    generic:
+      period: 10000000
     topic:
       ebsTopic: "/ebs/status"
+      canTopic: "/canbus/msg"
