@@ -1,10 +1,10 @@
 #include <apps_actuator/apps_actuator.hpp>
 
-AppsActuator::AppsActuator() : Node("apps_actuator_node")
+AppsActuator::AppsActuator() : EDFNode("apps_actuator_node")
 {
 	this->loadParameters();
+    this->configureEDFScheduler(this->m_nPeriod, this->m_nWCET, this->m_nDeadline);
     this->openSpiDevice();
-    this->configureEDFScheduler();
 
     this->m_subAppsActuator = this->create_subscription<std_msgs::msg::Int8>(
         this->m_sTopic, 1, std::bind(&AppsActuator::appsActuatorPercentageCallback, this, std::placeholders::_1));
@@ -21,29 +21,19 @@ void AppsActuator::loadParameters()
 {
 	declare_parameter("generic.spi_device", "");
 	declare_parameter("topic.appsTopic", "");
+
 	declare_parameter("generic.speed", 5000);
+	declare_parameter("generic.WCET", 5000000);
 	declare_parameter("generic.period", 10000000);
+	declare_parameter("generic.deadline", 10000000);
 	
 	get_parameter("generic.spi_device", this->m_sSpiInterface);
 	get_parameter("topic.appsTopic", this->m_sTopic);
+
 	get_parameter("generic.speed", this->m_nSpiSpeed);
+	get_parameter("generic.WCET", this->m_nWCET);
 	get_parameter("generic.period", this->m_nPeriod);
-}
-
-void AppsActuator::configureEDFScheduler()
-{
-    sched_attr attr;
-    memset(&attr, 0, sizeof(attr));
-    attr.size = sizeof(attr);
-    attr.sched_policy = SCHED_DEADLINE;
-    attr.sched_runtime = 5 * 1000 * 1000;
-    attr.sched_deadline = this->m_nPeriod;
-    attr.sched_period = this->m_nPeriod;
-
-    if (syscall(SYS_sched_setattr, gettid(), &attr, 0) != 0) {
-        RCLCPP_ERROR(this->get_logger(), "Failed to set EDF scheduler");
-        throw 1;
-    }
+	get_parameter("generic.deadline", this->m_nDeadline);
 }
 
 void AppsActuator::openSpiDevice()
@@ -106,7 +96,7 @@ void AppsActuator::appsActuatorPercentageCallback(const std_msgs::msg::Int8::Sha
 void AppsActuator::timerCallback()
 {
     auto time = std::chrono::steady_clock::now();
-    RCLCPP_INFO(this->get_logger(), "[ TIMESTAMP ]: %ld", std::chrono::duration_cast<std::chrono::seconds>(time.time_since_epoch()).count());
+    // RCLCPP_INFO(this->get_logger(), "[ TIMESTAMP ]: %ld", std::chrono::duration_cast<std::chrono::seconds>(time.time_since_epoch()).count());
 }
 
 AppsActuator::~AppsActuator()

@@ -3,6 +3,8 @@
     generic:
       spi_device: "/dev/spidev1.0"
       speed: 50000
-      period: 1000000000 # 10ms
+      WCET: 5000000 # ms
+      period: 10000000 # 10ms
+      deadline: 10000000
     topic:
       appsTopic: "/apps/percentage"
