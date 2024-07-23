@@ -1,5 +1,7 @@
 #pragma once
 
+#include <mmr_kria_base/edf_node.hpp>
+
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp/exceptions.hpp>
 #include <std_msgs/msg/int8.hpp>
@@ -12,24 +14,13 @@
 #define READY 0
 #define EMERGENCY 1
 
-class ASFlowchart : public rclcpp::Node
+class ASFlowchart : public EDFNode
 {
-    typedef struct {
-        uint32_t size;
-        uint32_t sched_policy;
-        uint64_t sched_flags;
-        int32_t sched_nice;
-        uint32_t sched_priority;
-        uint64_t sched_runtime;
-        uint64_t sched_deadline;
-        uint64_t sched_period;
-    } sched_attr;
-
     private:
 
         std::string m_sTopicEBS;
         std::string m_sTopicCANBus;
-        int m_nPeriod;
+        int m_nPeriod, m_nWCET, m_nDeadline;
 
         int m_nSTATE;
 
@@ -40,7 +31,6 @@ class ASFlowchart : public rclcpp::Node
         void ebsStatusCallback(const std_msgs::msg::Int8::SharedPtr status);
 
         void loadParameters();
-        void configureEDFScheduler();
 
     public:
 
