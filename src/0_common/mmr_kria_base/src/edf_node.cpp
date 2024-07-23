@@ -18,3 +18,31 @@ void EDFNode::configureEDFScheduler(int period_ns, int runtime_ns, int deadline_
         throw 1;
     }
 }
+
+bool EDFNode::readGPIOValueFromFile(std::string sFile)
+{
+    std::ifstream file(sFile);
+    if (!file.is_open()) {
+        RCLCPP_ERROR(this->get_logger(), "[ FAILED to OPEN FILE ]: %s", sFile);
+        throw 1;
+    }
+
+    int nVal;
+    file >> nVal;
+    return nVal;
+}
+
+void EDFNode::writeGPIOValueOnFile(std::string sFile, GPIO_VALUE nValue)
+{
+    std::ofstream file(sFile);
+    if (!file.is_open()) {
+        RCLCPP_ERROR(this->get_logger(), "[ FAILED to OPEN FILE ]: %s", sFile);
+        throw 1;
+    }
+
+    file << std::to_string((int)nValue);
+    if (!file.good()) {
+        RCLCPP_ERROR(this->get_logger(), "[ FAILED to OPEN FILE ]: %s", sFile);
+        throw 1;
+    }
+}
