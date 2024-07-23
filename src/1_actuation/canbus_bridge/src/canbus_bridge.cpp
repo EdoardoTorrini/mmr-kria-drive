@@ -73,7 +73,7 @@ void CANBusBridge::msgCANBusRxCallback(const can_msgs::msg::Frame::SharedPtr msg
 
 void CANBusBridge::connectCANBus()
 {
-    this->m_nSocket = socket(PF_CAN, SOCK_RAW, CAN_RAW);
+    this->m_nSocket = socket(PF_CAN, SOCK_RAW | SOCK_NONBLOCK, CAN_RAW);
     if (this->m_nSocket < 0) {
         RCLCPP_ERROR(this->get_logger(), "Error on socket define");
         throw 1;
