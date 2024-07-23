@@ -13,14 +13,16 @@ void ASFlowchart::loadParameters()
 	declare_parameter("generic.deadline", 10000000);
 
 	declare_parameter("topic.ebsTopic", "");
-	declare_parameter("topic.canTopic", "");
+	declare_parameter("topic.canTxTopic", "");
+	declare_parameter("topic.canRxTopic", "");
 	
 	get_parameter("generic.WCET", this->m_nWCET);
 	get_parameter("generic.period", this->m_nPeriod);
 	get_parameter("generic.deadline", this->m_nDeadline);
 
 	get_parameter("topic.ebsTopic", this->m_sTopicEBS);
-	get_parameter("topic.canTopic", this->m_sTopicCANBus);
+	get_parameter("topic.canTxTopic", this->m_sTopicCANRx);
+	get_parameter("topic.canRxTopic", this->m_sTopicCANTx);
 }
 
 void ASFlowchart::ebsStatusCallback(const std_msgs::msg::Int8::SharedPtr status)

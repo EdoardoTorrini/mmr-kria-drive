@@ -6,4 +6,5 @@
       deadline: 10000000
     topic:
       ebsTopic: "/ebs/status"
-      canTopic: "/canbus/msg"
+      canTxTopic: "/canbus/tx/msg"
+      canRxTopic: "/canbus/rx/msg"

@@ -19,7 +19,7 @@ class ASFlowchart : public EDFNode
     private:
 
         std::string m_sTopicEBS;
-        std::string m_sTopicCANBus;
+        std::string m_sTopicCANTx, m_sTopicCANRx;
         int m_nPeriod, m_nWCET, m_nDeadline;
 
         int m_nSTATE;

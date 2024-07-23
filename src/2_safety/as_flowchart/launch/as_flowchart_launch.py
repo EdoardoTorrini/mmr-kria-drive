@@ -9,7 +9,7 @@ import os
 def generate_launch_description():
 
     config_node = os.path.join(
-        get_package_share_directory('apps_actuator'),
+        get_package_share_directory('as_flowchart'),
         'config',
         'as_flowchart_conf.yaml'
     )
