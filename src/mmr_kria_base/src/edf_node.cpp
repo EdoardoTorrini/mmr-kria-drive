@@ -1,16 +1,9 @@
 #include "mmr_kria_base/edf_node.hpp"
 
-EDFNode::EDFNode(std::string name) : Node(name)
-{
-    return;
-}
+EDFNode::EDFNode(std::string name) : Node(name) {}
 
-EDFNode::~EDFNode()
-{
-    return;
-}
+void EDFNode::configureEDFScheduler(int period_ns, int runtime_ns, int deadline_ns) {
 
-int EDFNode::configureEDFScheduler(int period_ns, int runtime_ns, int deadline_ns) {
     // Set the scheduling policy to SCHED_DEADLINE
     struct sched_attr attr;
     memset(&attr, 0, sizeof(attr));
@@ -20,10 +13,8 @@ int EDFNode::configureEDFScheduler(int period_ns, int runtime_ns, int deadline_n
     attr.sched_deadline = deadline_ns;
     attr.sched_period = period_ns;
 
-    int ret = syscall(SYS_sched_setattr, gettid(), &attr, 0);
-    if (ret != 0)
-    {
+    if (syscall(SYS_sched_setattr, gettid(), &attr, 0) != 0) {
         RCLCPP_ERROR(this->get_logger(), "[ EDF SCHEDULER ]: %s", strerror(errno));
+        throw 1;
     }
-    return ret;
 }
