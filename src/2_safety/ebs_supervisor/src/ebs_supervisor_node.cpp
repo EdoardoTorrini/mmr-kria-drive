@@ -24,8 +24,9 @@ int main(int argc, char * argv[])
     while (true)
     {
       executor.spin_all(10s);
-      /* do not use chrono::timer of ros create public method and use here */
       
+      /* do not use chrono::timer of ros create public method and use here */
+      node->debugCheckValueFromCAN();
       sched_yield();
     }
 

@@ -13,12 +13,12 @@
 
 class EBSSupervisor : public EDFNode
 {
+    
     private:
 
         std::string m_sTopicEBS, m_sTopicCANTx;
         int m_nPeriod, m_nWCET, m_nDeadline;
-
-        bool m_bRESEmegency;
+        bool m_bDebug;
     
         /* value from ECU */
         float m_fPressionBrakeRear, m_fPressionBrakeFront, m_fEBSPression1, m_fEBSPression2;
@@ -27,7 +27,7 @@ class EBSSupervisor : public EDFNode
         bool m_bEmergency, m_bGoSignal, m_bBagSignal;
 
         /* status of autonomous mission */
-        bool m_bIsAutonomousMission;
+        uint8_t m_nMission;
 
         void loadParameters();
 
@@ -40,4 +40,6 @@ class EBSSupervisor : public EDFNode
 
         EBSSupervisor();
         ~EBSSupervisor() { RCLCPP_INFO(this->get_logger(), "CLOSING!"); };
+
+        void debugCheckValueFromCAN();
 };
