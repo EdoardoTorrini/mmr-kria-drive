@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<launch>
+    <group>
+        <!-- actuation -->
+        <include file="$(find-pkg-share apps_actuator)/launch/apps_actuator_launch.py"/>
+        <include file="$(find-pkg-share as_flowchart)/launch/as_flowchart_launch.py"/>
+    </group>
+</launch>
