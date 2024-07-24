@@ -15,6 +15,8 @@ class EDFNode : public rclcpp::Node
     };
 
     protected:
+
+        int m_nWCET, m_nPeriod, m_nDeadline;
         
         /* function to configure the node to use EDF - SCHED_DEALINE */
         void configureEDFScheduler(int period_ns, int runtime_ns, int deadline_ns);

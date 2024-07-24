@@ -5,9 +5,29 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
+cmake_policy(SET CMP0002 NEW)
+
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(std_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(ackermann_msgs REQUIRED)
+
+find_package(rosidl_default_generators REQUIRED)
+
+rosidl_generate_interfaces(${PROJECT_NAME}_interfaces
+  "msg/RaceStatus.msg"
+  "msg/TargetSpeed.msg"
+  "msg/VehicleState.msg"
+  "msg/SpeedProfilePoint.msg"
+  "msg/SpeedProfilePoints.msg"
+  "msg/ActuatorsStatus.msg"
+  "msg/BrakingActuatorStatus.msg"
+  "msg/SteeringActuatorStatus.msg"
+  # Add custom msg dependecies to standard ROS2 msgs
+  DEPENDENCIES std_msgs geometry_msgs ackermann_msgs
+ )
 
 include_directories(include)
 include_directories(${CMAKE_CURRENT_LIST_DIR})
@@ -16,12 +36,12 @@ link_directories(/usr/lib)
 
 add_library(${PROJECT_NAME} SHARED
   src/edf_node.cpp
+  src/kria_common_functions.cpp
 )
 
 ament_target_dependencies(${PROJECT_NAME}
   rclcpp
 )
-
 target_include_directories(${PROJECT_NAME}
   PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>

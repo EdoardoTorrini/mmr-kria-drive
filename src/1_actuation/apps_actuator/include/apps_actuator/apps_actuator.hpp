@@ -32,7 +32,7 @@ class AppsActuator : public EDFNode
         std::string m_sTopic;
         uint32_t m_nSpiSpeed;
 
-        int m_nIODevice, m_nPeriod, m_nWCET, m_nDeadline;
+        int m_nIODevice;
         uint8_t m_nMode = 0, m_nBits = 8;
         uint16_t m_nDelay = 0;
 

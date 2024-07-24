@@ -1,0 +1,3 @@
+float64 brake_torque
+float64 voltage
+bool is_ready

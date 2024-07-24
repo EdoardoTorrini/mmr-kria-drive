@@ -1,0 +1,62 @@
+pure_pursuit_node:
+  ros__parameters:
+    generic:
+      WCET: 5000000 # ms
+      period: 10000000 # 10ms
+      deadline: 10000000
+    #------------LAUNCH OPTIONS------------
+    #2) Choose if you want to control the speed of the vehicle!
+    controlSpeed: true #if false only steer will be controlled
+    #3) Choose control HZ of this node!
+    controlHz: 15 #20 #control hz for calculate all command
+    #4) Choose to shutdown the node after first lap
+    shutdownAfterFirstLap: false
+    allEventWithPurePursuit: false
+    useDynamicTargetSpeed: true
+    useRacingLine: true
+    isTrackOpen: false
+    # Laps setup
+    lapsToDo: 2
+    slowLaps: -1 # if -1 use dynamic speed from the beginning.
+
+    # Target waypoint setup
+    distToSwitchWaypoint: 3.0 #m
+
+    #------------SPEED CONTROL CONFIGURATIONS------------
+    #4) Select a predefine velocity target!
+    #unit: m/s ( 5.5 * 3.6 ~= 19 km/h)
+    velocityTarget: 5.5 #m/s ~12km/h #4.5 #m/s
+    minSpeed: 5.5   #m/s
+    maxSpeed: 10.0    #m/s
+    targetSpeedWeight: 0.70
+
+    #5) Tune Proportional controller for speed control
+    #PID control: Proportional car accelleration Gain calculated on speed differece
+    accelerationPGain: 0.2
+
+    #------------STEER CONTROL CONFIGURATIONS------------
+    #6) Setup minLookForward!
+    #min distance between the car and first point to follow,
+    #if no point detected after this this distance, the farthest in the list is choosed
+    minLookForward: 4.0 #m
+    minSpeedDistance: 4.0 #m
+
+    #7) Setup minLookForwardGAIN!
+    #Gain to increase minLookForward proportional to car speed
+    #minLookForward is increased by: minLookForwardGain * carSpeed
+    #example: 0.1 * 4.0 m/s = 0.4 m to be added at minLookForward
+    minLookForwardGain: 0.4
+
+    #8) Setup to steer more or less
+    #^^^ HIGHER the value ---> STEER WILL REACT SLOWER (wider the curve will be taken)
+    #vvv lower  the value ---> STEER WILL REACT FASTER (smaller the curve will be taken)
+    steerGain: 1.0 #1.0
+
+    #------------WAIPOINT SPLINE CONFIGURATIONS------------
+    #9) Choose the number of point on spline to generate between one waypoint and the next one
+    splineWaypointResolution: 5
+
+    k_smooth: 0.1
+
+    #-----------------------------------------------------
+    #END :(

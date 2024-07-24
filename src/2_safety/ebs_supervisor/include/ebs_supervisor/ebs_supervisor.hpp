@@ -17,7 +17,6 @@ class EBSSupervisor : public EDFNode
     private:
 
         std::string m_sTopicEBS, m_sTopicCANTx;
-        int m_nPeriod, m_nWCET, m_nDeadline;
         bool m_bDebug;
     
         /* value from ECU */

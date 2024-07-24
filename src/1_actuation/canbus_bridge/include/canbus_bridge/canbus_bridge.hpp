@@ -27,7 +27,7 @@ class CANBusBridge : public EDFNode
     private:
 
         std::string m_sInterface, m_sTopicTx, m_sTopicRx;
-        int m_nBitrate, m_nPeriod, m_nWCET, m_nDeadline, m_nMaxMsgs;
+        int m_nBitrate, m_nMaxMsgs;
         bool m_bDebug;
 
         void loadParameters();
