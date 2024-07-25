@@ -6,11 +6,19 @@ CANOpenBridge::CANOpenBridge() : EDFNode("canopen_bridge_node")
     this->configureEDFScheduler(this->m_nPeriod, this->m_nWCET, this->m_nDeadline);
     this->connectCANBus();
 
-    this->m_mSteer = new MaxonMotor(this->m_nSocket, this->m_nSteerID, this->m_nTimeoutMsg);
-    this->m_mSteer->download<uint8_t>(0x6060, 0x00, 0x01);
-    this->m_mSteer->download<uint16_t>(0x6040, 0x00, 0x0600);
-    this->m_mSteer->download<uint16_t>(0x6040, 0x00, 0x0F00);
+    this->m_mSteer = new MaxonMotor(this->m_nSocket, this->m_nSteerID, this->m_nTimeoutMsg, MOTOR::CST);
+
+    /**
+     * Example of using
+     */
+    for (int i = 0; i < 10; i++)
+        this->m_mSteer->initMotor();   
     
+    sleep(10);
+
+    unsigned short usSteerVoltage = this->m_mSteer->upload<unsigned short>(0x2200, 0x01);
+    RCLCPP_INFO(this->get_logger(), "[ ACTUAL STEER VOLTAGE ]: %d", usSteerVoltage);
+    this->m_mSteer->writeTargetTorque(80);
 }
 
 void CANOpenBridge::loadParameters()

@@ -1,21 +1,23 @@
 #include <canopen_bridge/driver/canopen.hpp>
 #include "mmr_kria_base/edf_setup.hpp"
 
+#include <ctime>
+#include <cmath>
+
 class MaxonMotor
 {
     private:
 
-        int m_nSocket, m_nNodeID, m_nTimeOutMsg;
+        int m_nSocket, m_nNodeID, m_nTimeOutMsg, m_nModeOfOp;
         int m_nState;
+        int sendMsgOverCANBus(CANOpen::canopen_frame cof, CANOpen::canopen_frame* rcv, int len);
 
     public:
 
-        MaxonMotor(int nSocket, int nNodeID, int nTimeOutMsg);
+        MaxonMotor(int nSocket, int nNodeID, int nTimeOutMsg, int nModeOfOp);
         ~MaxonMotor() {};
 
         int getState() { return this->m_nState; }
-        
-        int sendMsgOverCANBus(CANOpen::canopen_frame cof, CANOpen::canopen_frame* rcv, int len);
 
         template<typename T>
         int download(uint16_t nIndex, uint8_t nSubIndex, T value) {
@@ -58,4 +60,10 @@ class MaxonMotor
             memcpy(&res, rx.data, sizeof(T));
             return res;
         }
+
+        void initMotor();
+        void disableMotor();
+
+        int writeTargetPos(int targetPos);
+        int writeTargetTorque(int targetTorque);
 };

@@ -59,4 +59,5 @@ class CANOpenBridge : public EDFNode
 
         CANOpenBridge();
         ~CANOpenBridge() { close(this->m_nSocket); };
+
 };
