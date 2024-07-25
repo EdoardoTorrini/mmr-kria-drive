@@ -5,21 +5,14 @@
 #include <rclcpp/exceptions.hpp>
 #include <can_msgs/msg/frame.hpp>
 
-#include <sys/syscall.h>
-#include <linux/sched.h>
-#include <sched.h>
-
 #include <linux/can.h>
 #include <linux/can/raw.h>
 
 #include <sys/socket.h>
-#include <mutex>
 
 #include <string.h>
 #include <net/if.h>
 #include <sys/ioctl.h>
-
-#define gettid() syscall(SYS_gettid)
 
 class CANBusBridge : public EDFNode
 {

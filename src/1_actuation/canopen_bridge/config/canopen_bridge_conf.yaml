@@ -1,0 +1,21 @@
+/canopen_bridge_node:
+  ros__parameters:
+    generic:
+      interface: vcan0
+      bitrate: 1000000
+      debug: true
+      WCET: 5000000 # ms
+      period: 10000000 # 10ms
+      deadline: 10000000
+      timeout_msgs: 5
+    topic:
+      steerTopic: "/command/steer"
+      brakeTopic: "/command/brake"
+      clutchTopic: "/command/clutch"
+      statusActuatorTopic: "/actuator/status"
+    steer:
+      node_id: 18
+      wheel_rate: 6.4286
+      inc_per_degree: 179.7224 #riduzione 1-4 44.9306
+      max_target: 24000.0
+      velocity: 2750

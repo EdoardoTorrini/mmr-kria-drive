@@ -1,10 +1,11 @@
 #pragma once
 
+#include <sys/syscall.h>
 #include <linux/sched.h>
+#include <sched.h>
+
 #include <linux/types.h>
 #include <pthread.h>
-#include <sched.h>
-#include <sys/syscall.h>
 #include <unistd.h>
 #include <string.h>
 #include <cstdint>
@@ -86,6 +87,23 @@ namespace COCKPIT {
         MMR_MISSION_INSPECTION,
         MMR_MISSION_MANUAL,
         MMR_MISSION_DEBUG
+    };
+
+};
+
+namespace MOTOR {
+
+    enum MMR_CAN_ID_BASE {
+        REQUEST_SDO = 0x600,
+        RESPONSE_SDO = 580,
+    };
+
+    enum ACTUATOR_STATUS {
+        DISABLE = 0,
+        ENABLE,
+        POSITION_MODE,
+        TORQUE_MODE,
+        ERROR,
     };
 
 };

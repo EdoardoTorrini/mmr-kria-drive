@@ -7,18 +7,44 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-# uncomment the following section in order to fill in
-# further dependencies manually.
-# find_package(<dependency> REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(std_msgs REQUIRED)
+find_package(can_msgs REQUIRED)
+find_package(mmr_kria_base REQUIRED)
 
-add_executable(canopen_bridge src/canopen_bridge.cpp)
-target_include_directories(canopen_bridge PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>)
-target_compile_features(canopen_bridge PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
+include_directories(
+  include/
+)
 
-install(TARGETS canopen_bridge
-  DESTINATION lib/${PROJECT_NAME})
+add_library(canopen_driver src/driver/canopen_driver.cpp)
+add_library(${PROJECT_NAME} src/${PROJECT_NAME}.cpp)
+
+target_link_libraries(${PROJECT_NAME}
+  canopen_driver
+)
+
+ament_target_dependencies(canopen_driver
+  mmr_kria_base
+)
+
+ament_target_dependencies(${PROJECT_NAME}
+  rclcpp
+  std_msgs
+  can_msgs
+  mmr_kria_base
+)
+
+add_executable(${PROJECT_NAME}_node src/${PROJECT_NAME}_node.cpp)
+
+target_link_libraries(${PROJECT_NAME}_node
+  ${PROJECT_NAME}
+  canopen_driver
+)
+
+install(TARGETS
+  ${PROJECT_NAME}_node
+  DESTINATION lib/${PROJECT_NAME}
+)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -31,5 +57,17 @@ if(BUILD_TESTING)
   set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
 endif()
+
+# Install launch directory
+install(DIRECTORY
+  launch
+  DESTINATION share/${PROJECT_NAME}
+)
+
+# Install config directory
+install(DIRECTORY
+  config
+  DESTINATION share/${PROJECT_NAME}
+)
 
 ament_package()
