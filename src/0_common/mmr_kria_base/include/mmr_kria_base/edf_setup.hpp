@@ -106,4 +106,13 @@ namespace MOTOR {
         ERROR,
     };
 
+    enum MODE_OF_OPERATION {
+        HMM = 0x06,
+        PPM = 0x01,
+        PVM = 0x03,
+        CSP = 0x08,
+        CSV = 0x09,
+        CST = 0x0A,
+    };
+
 };

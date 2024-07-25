@@ -1,14 +1,23 @@
 #include <canopen_bridge/driver/canopen.hpp>
 #include "mmr_kria_base/edf_setup.hpp"
 
+#include <ctime>
+#include <cmath>
+
 class MaxonMotor
 {
     private:
 
-        int m_nSocket, m_nNodeID, m_nTimeOutMsg;
+        int m_nSocket, m_nNodeID, m_nTimeOutMsg, m_nModeOfOp;
         int m_nState;
+        int sendMsgOverCANBus(CANOpen::canopen_frame cof, CANOpen::canopen_frame* rcv, int len);
 
-        int sendMsgOverCANBus(CANOpen::canopen_frame cof, CANOpen::canopen_frame* rcv);
+    public:
+
+        MaxonMotor(int nSocket, int nNodeID, int nTimeOutMsg, int nModeOfOp);
+        ~MaxonMotor() {};
+
+        int getState() { return this->m_nState; }
 
         template<typename T>
         int download(uint16_t nIndex, uint8_t nSubIndex, T value) {
@@ -21,10 +30,10 @@ class MaxonMotor
             tx.index = nIndex;
             tx.subindex = nSubIndex;
 
-            memset(&tx.data, 0, CANOpen::max_data_len * sizeof(uint8_t));
+            memset(tx.data, 0, CANOpen::max_data_len * sizeof(uint8_t));
             memcpy(tx.data, &value, sizeof(T));
 
-            if (sendMsgOverCANBus(tx, &rx) < 0) return -1;
+            if (sendMsgOverCANBus(tx, &rx, sizeof(T)) < 0) return -1;
 
             // TODO: gestire nel caso in cui (rx->header >> (header_size - 1)) != 0
             //       è un errore -> cambiare stato del motore dello sterzo
@@ -42,7 +51,7 @@ class MaxonMotor
             tx.index = nIndex;
             tx.subindex = nSubIndex;
 
-            if (sendMsgOverCANBus(tx, &rx) < 0) return -1;
+            if (sendMsgOverCANBus(tx, &rx, 0) < 0) return -1;
 
             // TODO: gestire nel caso in cui (rx->header >> (header_size - 1)) != 0
             //       è un errore -> cambiare stato del motore dello sterzo
@@ -52,10 +61,9 @@ class MaxonMotor
             return res;
         }
 
-    public:
+        void initMotor();
+        void disableMotor();
 
-        MaxonMotor(int nSocket, int nNodeID, int nTimeOutMsg);
-        ~MaxonMotor() {};
-
-        int getState() { return this->m_nState; }
+        int writeTargetPos(int targetPos);
+        int writeTargetTorque(int targetTorque);
 };

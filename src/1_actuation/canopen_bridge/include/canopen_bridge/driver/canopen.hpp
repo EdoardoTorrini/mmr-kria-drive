@@ -10,7 +10,7 @@
 namespace CANOpen {
 
     const int header_size = 8, max_data_len = 4;
-    const int sdo_upload_header = 64, sdo_download_header[max_data_len] = {44, 40, 36, 35};
+    const int sdo_upload_header = 64, sdo_download_header[max_data_len] = {47, 43, 39, 35};
 
     template<typename Base, typename T>
     static inline bool instanceof(const T) { return std::is_base_of<Base, T>::value; }
@@ -46,7 +46,7 @@ namespace CANOpen {
             return *this;
         }
 
-        can_frame copy() {
+        can_frame copy(int len) {
             can_frame frame;
 
             frame.can_id = this->id;
@@ -58,7 +58,8 @@ namespace CANOpen {
             frame.data[2] = (uint8_t)(this->index >> 8);
             frame.data[3] = this->subindex;
 
-            std::reverse_copy(this->data, this->data+4, &frame.data[5]);
+            memcpy(frame.data+4, this->data, max_data_len * sizeof(uint8_t));
+            // std::reverse_copy(this->data, this->data+len, frame.data+4);
             return frame;
         }
 
