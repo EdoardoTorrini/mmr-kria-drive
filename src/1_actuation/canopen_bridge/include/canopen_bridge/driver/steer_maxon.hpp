@@ -25,10 +25,10 @@ class MaxonSteer : public MaxonMotor
             : MaxonMotor(nSocket, nNodeId, MOTOR::HMM)
         {
             /* set modes of operation */
-            this->download<uint8_t>(0x6060, 0x00, this->m_nModeOfOp);
+            this->download<uint8_t>(0x6060, 0x00, MOTOR::HMM);
 
             /* 0x25 -> set homing method */
-            this->download<uint8_t>(0x6098, 0x00, 0x25);
+            this->download<uint8_t>(0x6098, 0x00, nHomingMethod);
 
             /* enable device */
             this->init();
