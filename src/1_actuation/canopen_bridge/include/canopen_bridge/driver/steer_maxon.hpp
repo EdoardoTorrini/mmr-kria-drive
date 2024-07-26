@@ -18,7 +18,8 @@ class MaxonSteer : public MaxonMotor
             this->m_nVelocity = nVelocity;
             this->m_fMaxTarget = fMaxTarget;
 
-            this->initSteer();
+            for (int i = 0; i < 10; i++)
+                this->initSteer();
         };
 
         MaxonSteer(int nSocket, int nNodeId, int nHomingMethod=0x25)
