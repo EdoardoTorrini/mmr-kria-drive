@@ -59,7 +59,6 @@ namespace CANOpen {
             frame.data[3] = this->subindex;
 
             memcpy(frame.data+4, this->data, max_data_len * sizeof(uint8_t));
-            // std::reverse_copy(this->data, this->data+len, frame.data+4);
             return frame;
         }
 

@@ -1,6 +1,7 @@
 #pragma once
 
-#include <canopen_bridge/driver/canopen_driver.hpp>
+#include <canopen_bridge/driver/steer_maxon.hpp>
+#include <canopen_bridge/driver/brake_maxon.hpp>
 
 #include <mmr_kria_base/edf_node.hpp>
 #include <mmr_kria_base/msg/cmd_motor.hpp>
@@ -18,6 +19,7 @@
 #include <string.h>
 #include <net/if.h>
 #include <sys/ioctl.h>
+#include <math.h>
 
 class CANOpenBridge : public EDFNode
 {
@@ -32,6 +34,9 @@ class CANOpenBridge : public EDFNode
         /* Steer parameters */
         int m_nSteerID, m_nVelocity;
         float m_fWheelRate, m_fIncPerDegree, m_fMaxTarget;
+
+        /* Brake parameters */
+        int m_nBrakeId, m_nMaxTorque, m_nReturnPedalTorque;
 
         /* Subscriber for CANOpen Command Msg */
         rclcpp::Subscription<mmr_kria_base::msg::CmdMotor>::SharedPtr m_subCmdSteer;
@@ -53,7 +58,8 @@ class CANOpenBridge : public EDFNode
         void connectCANBus();
         void loadParameters();
 
-        MaxonMotor *m_mSteer = nullptr, *m_mBrake = nullptr, *m_mClutch = nullptr;
+        MaxonSteer *m_mSteer = nullptr;
+        MaxonBrake *m_mBrake = nullptr;
 
     public:
 

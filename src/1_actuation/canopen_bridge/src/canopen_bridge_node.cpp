@@ -11,7 +11,6 @@ using namespace std::chrono_literals;
 
 int main(int argc, char * argv[])
 {
-  // END ENABLE
   signal(SIGINT, handleSignal);
   /* node initialization */
   rclcpp::init(argc, argv);

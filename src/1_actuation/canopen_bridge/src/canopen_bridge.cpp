@@ -6,19 +6,33 @@ CANOpenBridge::CANOpenBridge() : EDFNode("canopen_bridge_node")
     this->configureEDFScheduler(this->m_nPeriod, this->m_nWCET, this->m_nDeadline);
     this->connectCANBus();
 
-    this->m_mSteer = new MaxonMotor(this->m_nSocket, this->m_nSteerID, this->m_nTimeoutMsg, MOTOR::CST);
+    this->m_subCmdSteer = this->create_subscription<mmr_kria_base::msg::CmdMotor>(
+        this->m_sSteerTopic, 1, std::bind(&CANOpenBridge::msgCmdSteerCallback, this, std::placeholders::_1));
+
+    this->m_subCmdBrake = this->create_subscription<mmr_kria_base::msg::CmdMotor>(
+        this->m_sSteerTopic, 1, std::bind(&CANOpenBridge::msgCmdBrakeCallback, this, std::placeholders::_1));
+
+    /* Enables the steer motor in PPM */
+    this->m_mSteer = new MaxonSteer(this->m_nSocket, this->m_nSteerID, this->m_nTimeoutMsg);
+
+    /* Enables the brake motor in CST */
+    this->m_mBrake = new MaxonBrake(this->m_nSocket, this->m_nSteerID, this->m_nTimeoutMsg);
+    
+    /* Enables the steer motor in HMM */
+    // this->m_mSteer = new MaxonSteer(this->m_nSocket, this->m_nSteerID);
+    // delete this->m_nSteer;
 
     /**
-     * Example of using
+     * Example for the use
      */
     for (int i = 0; i < 10; i++)
-        this->m_mSteer->initMotor();   
+        this->m_mSteer->initSteer();   
     
     sleep(10);
 
     unsigned short usSteerVoltage = this->m_mSteer->upload<unsigned short>(0x2200, 0x01);
     RCLCPP_INFO(this->get_logger(), "[ ACTUAL STEER VOLTAGE ]: %d", usSteerVoltage);
-    this->m_mSteer->writeTargetTorque(80);
+    // this->m_mSteer->writeTargetTorque(80);
 }
 
 void CANOpenBridge::loadParameters()
@@ -41,6 +55,11 @@ void CANOpenBridge::loadParameters()
     declare_parameter("steer.inc_per_degree", 179.7224);
     declare_parameter("steer.max_target", 24000.0);
     declare_parameter("steer.velocity", 2750);
+
+    declare_parameter("brake.node_id", 18);
+    declare_parameter("brake.max_torque", 6.4286);
+    declare_parameter("brake.return_pedal_torque", 1500);
+    declare_parameter("steer.max_target", -20);
     
     get_parameter("generic.interface", this->m_sInterface);
     get_parameter("generic.bitrate", this->m_nBitrate);
@@ -60,6 +79,10 @@ void CANOpenBridge::loadParameters()
     get_parameter("steer.inc_per_degree", this->m_fIncPerDegree);
     get_parameter("steer.max_target", this->m_fMaxTarget);
     get_parameter("steer.velocity", this->m_nVelocity);
+
+    get_parameter("brake.node_id", this->m_nBrakeId);
+    get_parameter("brake.max_torque", this->m_nMaxTorque);
+    get_parameter("brake.return_pedal_torque", this->m_nReturnPedalTorque);
 }
 
 void CANOpenBridge::connectCANBus()
@@ -95,5 +118,21 @@ void CANOpenBridge::connectCANBus()
 
 void CANOpenBridge::msgCmdSteerCallback(mmr_kria_base::msg::CmdMotor::SharedPtr msg)
 {
+    /* convert radiant into degrees */
+    msg->wheel_angle *= 180 / M_PI;
+
+    /* Compute the incremets to do */
+    int nIncrements = std::round(msg->wheel_angle * this->m_fWheelRate * this->m_fIncPerDegree);
+
+    if (this->m_mSteer != nullptr)
+        this->m_mSteer->writeTargetPos(nIncrements);
+}
+
+void CANOpenBridge::msgCmdBrakeCallback(mmr_kria_base::msg::CmdMotor::SharedPtr msg)
+{
+    msg->brake_torque *= 1000;
+    int nTorque = std::abs(std::round(msg->brake_torque));
     
+    if (this->m_mBrake != nullptr)
+        this-m_mBrake->writeTargetTorque(nTorque);
 }

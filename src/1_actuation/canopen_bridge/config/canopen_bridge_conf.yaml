@@ -16,6 +16,10 @@
     steer:
       node_id: 18
       wheel_rate: 6.4286
-      inc_per_degree: 179.7224 #riduzione 1-4 44.9306
+      inc_per_degree: 179.7224 # riduzione 1-4 44.9306
       max_target: 24000.0
       velocity: 2750
+    brake:
+      node_id: 17
+      max_torque: 1500
+      return_pedal_torque: -20

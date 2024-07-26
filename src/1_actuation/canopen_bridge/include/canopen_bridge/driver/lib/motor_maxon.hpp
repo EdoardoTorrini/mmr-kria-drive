@@ -1,4 +1,4 @@
-#include <canopen_bridge/driver/canopen.hpp>
+#include <canopen_bridge/driver/lib/canopen.hpp>
 #include "mmr_kria_base/edf_setup.hpp"
 
 #include <ctime>
@@ -8,32 +8,29 @@ class MaxonMotor
 {
     private:
 
-        int m_nSocket, m_nNodeID, m_nTimeOutMsg, m_nModeOfOp;
-        int m_nState;
-        int sendMsgOverCANBus(CANOpen::canopen_frame cof, CANOpen::canopen_frame* rcv, int len);
+        int socket, node_id, timeout_msg_count, mode_of_op;
+        int send_msg_on_canbus(CANOpen::canopen_frame cof, CANOpen::canopen_frame* rcv, int len);
 
-    public:
+    protected:
 
-        MaxonMotor(int nSocket, int nNodeID, int nTimeOutMsg, int nModeOfOp);
+        MaxonMotor(int socket, int node_id, int mode_of_op, int timeout_msg_count=5);
         ~MaxonMotor() {};
 
-        int getState() { return this->m_nState; }
-
         template<typename T>
-        int download(uint16_t nIndex, uint8_t nSubIndex, T value) {
+        int download(uint16_t index, uint8_t subindex, T value) {
             CANOpen::canopen_frame tx, rx;
             if ((CANOpen::instanceof<double>(value)) || (CANOpen::instanceof<long long int>(value)))
                 return -1;
             
-            tx.id = MOTOR::REQUEST_SDO + this->m_nNodeID;
+            tx.id = MOTOR::REQUEST_SDO + this->node_id;
             tx.header = CANOpen::create_sdo_download_header(sizeof(T));
-            tx.index = nIndex;
-            tx.subindex = nSubIndex;
+            tx.index = index;
+            tx.subindex = subindex;
 
             memset(tx.data, 0, CANOpen::max_data_len * sizeof(uint8_t));
             memcpy(tx.data, &value, sizeof(T));
 
-            if (sendMsgOverCANBus(tx, &rx, sizeof(T)) < 0) return -1;
+            if (send_msg_on_canbus(tx, &rx, sizeof(T)) < 0) return -1;
 
             // TODO: gestire nel caso in cui (rx->header >> (header_size - 1)) != 0
             //       è un errore -> cambiare stato del motore dello sterzo
@@ -41,17 +38,24 @@ class MaxonMotor
             return 0;
         }
 
+        void init();
+        void disable();
+
+        void toggle_new_pos();
+
+    public:
+
         template<typename T>
-        T upload(uint16_t nIndex, uint8_t nSubIndex) {
+        T upload(uint16_t index, uint8_t subindex) {
             T res;
             CANOpen::canopen_frame tx, rx;
 
-            tx.id = MOTOR::REQUEST_SDO + this->m_nNodeID;
+            tx.id = MOTOR::REQUEST_SDO + this->node_id;
             tx.header = CANOpen::sdo_upload_header;
-            tx.index = nIndex;
-            tx.subindex = nSubIndex;
+            tx.index = index;
+            tx.subindex = subindex;
 
-            if (sendMsgOverCANBus(tx, &rx, 0) < 0) return -1;
+            if (send_msg_on_canbus(tx, &rx, 0) < 0) return -1;
 
             // TODO: gestire nel caso in cui (rx->header >> (header_size - 1)) != 0
             //       è un errore -> cambiare stato del motore dello sterzo
@@ -60,10 +64,4 @@ class MaxonMotor
             memcpy(&res, rx.data, sizeof(T));
             return res;
         }
-
-        void initMotor();
-        void disableMotor();
-
-        int writeTargetPos(int targetPos);
-        int writeTargetTorque(int targetTorque);
 };

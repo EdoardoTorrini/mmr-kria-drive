@@ -16,14 +16,10 @@ include_directories(
   include/
 )
 
-add_library(canopen_driver src/driver/canopen_driver.cpp)
+add_library(motor_maxon src/driver/motor_maxon.cpp)
 add_library(${PROJECT_NAME} src/${PROJECT_NAME}.cpp)
 
-target_link_libraries(${PROJECT_NAME}
-  canopen_driver
-)
-
-ament_target_dependencies(canopen_driver
+ament_target_dependencies(motor_maxon
   mmr_kria_base
 )
 
@@ -38,7 +34,7 @@ add_executable(${PROJECT_NAME}_node src/${PROJECT_NAME}_node.cpp)
 
 target_link_libraries(${PROJECT_NAME}_node
   ${PROJECT_NAME}
-  canopen_driver
+  motor_maxon
 )
 
 install(TARGETS
