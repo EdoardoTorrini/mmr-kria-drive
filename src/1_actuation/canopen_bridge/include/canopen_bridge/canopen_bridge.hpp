@@ -28,8 +28,9 @@ class CANOpenBridge : public EDFNode
         std::string m_sInterface;
         int m_nBitrate, m_nTimeoutMsg;
         bool m_bDebug;
+        
 
-        std::string m_sSteerTopic, m_sBrakeTopic, m_sClucthTopic, m_sStatusActuatorTopic;
+        std::string m_sSteerTopic, m_sBrakeTopic, m_sClucthTopic, m_sStatusActuatorTopic, m_sCanTopic;
 
         /* Steer parameters */
         int m_nSteerID, m_nVelocity;
@@ -37,6 +38,10 @@ class CANOpenBridge : public EDFNode
 
         /* Brake parameters */
         int m_nBrakeId, m_nMaxTorque, m_nReturnPedalTorque;
+
+        /* Clutch parameters */
+        int m_nClutchId, m_nVelocityClutch;
+        float m_fClutchPot;
 
         /* Subscriber for CANOpen Command Msg */
         rclcpp::Subscription<mmr_kria_base::msg::CmdMotor>::SharedPtr m_subCmdSteer;
@@ -47,6 +52,9 @@ class CANOpenBridge : public EDFNode
 
         rclcpp::Subscription<mmr_kria_base::msg::CmdMotor>::SharedPtr m_subCmdClutch;
         void msgCmdClutchCallback(mmr_kria_base::msg::CmdMotor::SharedPtr msg);
+
+        rclcpp::Subscription<can_msgs::msg::Frame>::SharedPtr m_subCanCallback;
+        void msgCanCallback(can_msgs::msg::Frame::SharedPtr msg);
 
         mmr_kria_base::msg::ActuatorStatus m_asActuatorStatus;
         rclcpp::Publisher<mmr_kria_base::msg::ActuatorStatus>::SharedPtr m_pubCANBusTx;

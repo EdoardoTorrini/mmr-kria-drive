@@ -13,6 +13,7 @@
       brakeTopic: "/command/brake"
       clutchTopic: "/command/clutch"
       statusActuatorTopic: "/actuator/status"
+      canBusTopic: "/canbus/tx/msg"
     steer:
       node_id: 18
       wheel_rate: 6.4286
@@ -23,3 +24,7 @@
       node_id: 17
       max_torque: 1500
       return_pedal_torque: -20
+    clutch:
+      node_id: 16
+      velocity: 3500
+      

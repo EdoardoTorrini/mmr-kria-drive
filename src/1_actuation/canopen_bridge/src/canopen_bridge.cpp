@@ -10,7 +10,7 @@ CANOpenBridge::CANOpenBridge() : EDFNode("canopen_bridge_node")
         this->m_sSteerTopic, 1, std::bind(&CANOpenBridge::msgCmdSteerCallback, this, std::placeholders::_1));
 
     this->m_subCmdBrake = this->create_subscription<mmr_kria_base::msg::CmdMotor>(
-        this->m_sSteerTopic, 1, std::bind(&CANOpenBridge::msgCmdBrakeCallback, this, std::placeholders::_1));
+        this->m_sBrakeTopic, 1, std::bind(&CANOpenBridge::msgCmdBrakeCallback, this, std::placeholders::_1));
 
     
     
@@ -22,13 +22,13 @@ CANOpenBridge::CANOpenBridge() : EDFNode("canopen_bridge_node")
     /**
      * Example for the use
      */
-    for (int i = 0; i < 10; i++)
-        this->m_mSteer->initSteer();   
+    // for (int i = 0; i < 10; i++)
+    //     this->m_mSteer->initSteer();   
     
-    sleep(10);
+    // sleep(10);
 
-    unsigned short usSteerVoltage = this->m_mSteer->upload<unsigned short>(0x2200, 0x01);
-    RCLCPP_INFO(this->get_logger(), "[ ACTUAL STEER VOLTAGE ]: %d", usSteerVoltage);
+    // unsigned short usSteerVoltage = this->m_mSteer->upload<unsigned short>(0x2200, 0x01);
+    // RCLCPP_INFO(this->get_logger(), "[ ACTUAL STEER VOLTAGE ]: %d", usSteerVoltage);
     // this->m_mSteer->writeTargetTorque(80);
 }
 
@@ -155,4 +155,10 @@ void CANOpenBridge::msgCmdBrakeCallback(mmr_kria_base::msg::CmdMotor::SharedPtr 
     
     if (this->m_mBrake != nullptr)
         this->m_mBrake->writeTargetTorque(nTorque);
+}
+
+void CANOpenBridge::msgCanCallback(can_msgs::msg::Frame::SharedPtr msg)
+{
+    if (msg->id == ECU::MMR_ECU_CLUTCH)  
+        memcpy(&this->m_fClutchPot, msg->data, sizeof(float));
 }
