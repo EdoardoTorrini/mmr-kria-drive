@@ -23,6 +23,10 @@ rosidl_generate_interfaces(${PROJECT_NAME}_interfaces
   "msg/SpeedProfilePoints.msg"
   "msg/CmdMotor.msg"
   "msg/ActuatorStatus.msg"
+  "msg/ActuatorsStatus.msg"
+  "msg/BrakingActuatorStatus.msg"
+  "msg/SteeringActuatorStatus.msg"
+  "msg/TargetSpeed.msg"
   # Add custom msg dependecies to standard ROS2 msgs
   DEPENDENCIES std_msgs geometry_msgs ackermann_msgs
  )

@@ -160,5 +160,5 @@ void CANOpenBridge::msgCmdBrakeCallback(mmr_kria_base::msg::CmdMotor::SharedPtr 
 void CANOpenBridge::msgCanCallback(can_msgs::msg::Frame::SharedPtr msg)
 {
     if (msg->id == ECU::MMR_ECU_CLUTCH)  
-        memcpy(&this->m_fClutchPot, msg->data, sizeof(float));
+        memcpy(&this->m_fClutchPot, msg->data.data(), sizeof(float));
 }
