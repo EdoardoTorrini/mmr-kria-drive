@@ -12,11 +12,8 @@ CANOpenBridge::CANOpenBridge() : EDFNode("canopen_bridge_node")
     this->m_subCmdBrake = this->create_subscription<mmr_kria_base::msg::CmdMotor>(
         this->m_sSteerTopic, 1, std::bind(&CANOpenBridge::msgCmdBrakeCallback, this, std::placeholders::_1));
 
-    /* Enables the steer motor in PPM */
-    this->m_mSteer = new MaxonSteer(this->m_nSocket, this->m_nSteerID, this->m_nTimeoutMsg);
-
-    /* Enables the brake motor in CST */
-    this->m_mBrake = new MaxonBrake(this->m_nSocket, this->m_nSteerID, this->m_nTimeoutMsg);
+    
+    
     
     /* Enables the steer motor in HMM */
     // this->m_mSteer = new MaxonSteer(this->m_nSocket, this->m_nSteerID);
@@ -118,21 +115,44 @@ void CANOpenBridge::connectCANBus()
 
 void CANOpenBridge::msgCmdSteerCallback(mmr_kria_base::msg::CmdMotor::SharedPtr msg)
 {
+    if (msg->enable) {
+        /* Enables the steer motor in PPM */
+        this->m_mSteer = new MaxonSteer(
+            this->m_nSocket, this->m_nSteerID, this->m_nTimeoutMsg,
+            this->m_fMaxTarget, this->m_nVelocity
+        );
+        return;
+    }
+
+    if (msg->homing) {
+        this->m_mSteer = new MaxonSteer(this->m_nSocket, m_nSteerID);
+        return;
+    }
+    
     /* convert radiant into degrees */
     msg->wheel_angle *= 180 / M_PI;
 
     /* Compute the incremets to do */
     int nIncrements = std::round(msg->wheel_angle * this->m_fWheelRate * this->m_fIncPerDegree);
 
-    if (this->m_mSteer != nullptr)
+    if (this->m_mSteer != nullptr)  
         this->m_mSteer->writeTargetPos(nIncrements);
 }
 
 void CANOpenBridge::msgCmdBrakeCallback(mmr_kria_base::msg::CmdMotor::SharedPtr msg)
 {
+    if (msg->enable) {
+        /* Enables the brake motor in CST */
+        this->m_mBrake = new MaxonBrake(
+            this->m_nSocket, this->m_nSteerID, this->m_nTimeoutMsg,
+            this->m_nMaxTorque, m_nReturnPedalTorque
+        );
+        return;
+    }
+
     msg->brake_torque *= 1000;
     int nTorque = std::abs(std::round(msg->brake_torque));
     
     if (this->m_mBrake != nullptr)
-        this-m_mBrake->writeTargetTorque(nTorque);
+        this->m_mBrake->writeTargetTorque(nTorque);
 }

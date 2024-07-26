@@ -1,3 +1,5 @@
+#pragma once
+
 #include <canopen_bridge/driver/lib/canopen.hpp>
 #include "mmr_kria_base/edf_setup.hpp"
 
