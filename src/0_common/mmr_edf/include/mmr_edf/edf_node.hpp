@@ -11,6 +11,10 @@
 #include <string.h>
 #include <cstdint>
 
+#include <bit>
+#include <algorithm>
+#include <array>
+
 #define gettid() syscall(SYS_gettid)
 
 // Necessary for EDF scheduling
@@ -48,4 +52,17 @@ class EDFNode : public rclcpp::Node
         void writeGPIOValueOnFile(std::string sFile, GPIO_VALUE nValue);
 
         EDFNode(std::string sName) : rclcpp::Node(sName) {};
+    
+    public:
+        
+        template <typename T, std::endian Endianness = std::endian::little>
+        static T endian_cast(const uint8_t* bytes) {
+            if (std::endian::native == Endianness)
+                return *(const T*)bytes;
+            else {
+                std::array<uint8_t, sizeof(T)> buf;
+                std::copy(bytes, bytes + sizeof(T), buf.rbegin());
+                return *(const T*)buf.data();
+            }
+        }
 };

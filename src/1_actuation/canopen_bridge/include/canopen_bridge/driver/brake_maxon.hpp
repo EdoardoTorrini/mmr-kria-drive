@@ -17,7 +17,7 @@ class MaxonBrake : public MaxonMotor
             this->m_nMaxTorque = nMaxTorque;
             this->m_nReturnPedalTorque = nReturnPedalTorque;
 
-            for (int i = 0; i < 10; i ++)
+            for (int i = 0; i < 10; i++)
                 this->initBrake();
         }
 

@@ -158,6 +158,6 @@ void CANOpenBridge::msgCmdBrakeCallback(mmr_kria_base::msg::CmdMotor::SharedPtr 
 
 void CANOpenBridge::msgCanCallback(can_msgs::msg::Frame::SharedPtr msg)
 {
-    if (msg->id == ECU::MMR_ECU_CLUTCH)  
+    if (msg->id == ECU::MMR_ECU_CLUTCH_STEER)  
         memcpy(&this->m_fClutchPot, &msg->data, sizeof(float));
 }

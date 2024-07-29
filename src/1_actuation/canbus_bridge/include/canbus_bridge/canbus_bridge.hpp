@@ -54,18 +54,6 @@ class CANBusBridge : public EDFNode
         void readEcuStatus(can_frame frame);
         void readResStatus(can_frame frame);
 
-        template <typename T, std::endian Endianness = std::endian::little>
-        T endian_cast(const uint8_t* bytes) {
-            if (std::endian::native == Endianness)
-                return *(const T*)bytes;
-            else {
-                std::array<uint8_t, sizeof(T)> buf;
-                std::copy(bytes, bytes + sizeof(T), buf.rbegin());
-                return *(const T*)buf.data();
-            }
-        }
-
-
     public:
 
         CANBusBridge();
