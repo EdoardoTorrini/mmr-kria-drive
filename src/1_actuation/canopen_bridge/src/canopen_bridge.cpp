@@ -54,9 +54,8 @@ void CANOpenBridge::loadParameters()
     declare_parameter("steer.velocity", 2750);
 
     declare_parameter("brake.node_id", 18);
-    declare_parameter("brake.max_torque", 6.4286);
-    declare_parameter("brake.return_pedal_torque", 1500);
-    declare_parameter("steer.max_target", -20);
+    declare_parameter("brake.max_torque", 1500);
+    declare_parameter("brake.return_pedal_torque", -20);
     
     get_parameter("generic.interface", this->m_sInterface);
     get_parameter("generic.bitrate", this->m_nBitrate);
@@ -160,5 +159,5 @@ void CANOpenBridge::msgCmdBrakeCallback(mmr_kria_base::msg::CmdMotor::SharedPtr 
 void CANOpenBridge::msgCanCallback(can_msgs::msg::Frame::SharedPtr msg)
 {
     if (msg->id == ECU::MMR_ECU_CLUTCH)  
-        memcpy(&this->m_fClutchPot, msg->data, sizeof(float));
+        memcpy(&this->m_fClutchPot, &msg->data, sizeof(float));
 }

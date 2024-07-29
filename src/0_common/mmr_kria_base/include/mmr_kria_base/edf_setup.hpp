@@ -44,6 +44,10 @@ namespace RES {
 
 namespace ECU {
 
+    enum MMR_CAN_MASK {
+        MMR_ECU_MASK = 0x700,
+    };
+
     enum MMR_CAN_MSG_ID {
         
         MMR_STEERING_ANGLE = 0x8A,

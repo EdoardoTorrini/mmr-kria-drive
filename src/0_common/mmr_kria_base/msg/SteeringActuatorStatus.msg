@@ -1,3 +1,0 @@
-float64 wheel_angle
-float64 voltage
-bool is_ready

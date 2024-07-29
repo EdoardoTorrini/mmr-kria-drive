@@ -27,6 +27,11 @@ ament_target_dependencies(${PROJECT_NAME}
 
 add_executable(${PROJECT_NAME}_node src/${PROJECT_NAME}_node.cpp)
 
+ament_target_dependencies(${PROJECT_NAME}_node
+  rclcpp
+  mmr_kria_base
+)
+
 target_link_libraries(${PROJECT_NAME}_node
   ${PROJECT_NAME}
 )

@@ -23,6 +23,8 @@ CANBusBridge::CANBusBridge() : EDFNode("canbus_bridge_node")
         this->m_sTopicRx, 1, std::bind(&CANBusBridge::msgCANBusRxCallback, this, std::placeholders::_1));
 
     this->m_pubCANBusTx = this->create_publisher<can_msgs::msg::Frame>(this->m_sTopicTx, 1);
+    this->m_pubEcuStatus = this->create_publisher<mmr_kria_base::msg::EcuStatus>(this->m_sEcuStatusTopic, 1);
+    this->m_pubResStatus = this->create_publisher<mmr_kria_base::msg::ResStatus>(this->m_sResStatusTopic, 1);
 }
 
 void CANBusBridge::loadParameters()
@@ -37,6 +39,8 @@ void CANBusBridge::loadParameters()
 
     declare_parameter("topic.canTxTopic", "");
     declare_parameter("topic.canRxTopic", "");
+    declare_parameter("topic.ecuStatusTopic", "");
+    declare_parameter("topic.resStatusTopic", "");
     
     get_parameter("generic.interface", this->m_sInterface);
     get_parameter("generic.bitrate", this->m_nBitrate);
@@ -48,6 +52,8 @@ void CANBusBridge::loadParameters()
 
     get_parameter("topic.canTxTopic", this->m_sTopicTx);
     get_parameter("topic.canRxTopic", this->m_sTopicRx);
+    get_parameter("topic.ecuStatusTopic", this->m_sEcuStatusTopic);
+    get_parameter("topic.resStatusTopic", this->m_sResStatusTopic);
 
 }
 
@@ -108,6 +114,47 @@ void CANBusBridge::readMsgFromCANBus()
         memcpy(&txMsg->data, frame.data, CAN_MAX_DLEN);
 
         this->m_pubCANBusTx->publish(*txMsg);
+
+        if ((frame.can_id & ECU::MMR_ECU_MASK) == ECU::MMR_ECU_MASK)
+            this->readEcuStatus(frame);
+
         nMsgRead ++;
+    }
+}
+
+void CANBusBridge::readEcuStatus(can_frame frame)
+{
+    switch (frame.can_id)
+    {
+        case ECU::MMR_ECU_PEDAL_THROTTLE:
+            memcpy(&this->m_msgEcuStatus.pot_pedal_a, &frame.data, 2);
+            this->m_msgEcuStatus.pot_pedal_a /= 1000;
+
+            memcpy(&this->m_msgEcuStatus.pot_pedal_b, &frame.data[2], 2);
+            this->m_msgEcuStatus.pot_pedal_b /= 1000;
+            memcpy(&this->m_msgEcuStatus.pot_throttle_valve_a, &frame.data[4], 2);
+            this->m_msgEcuStatus.pot_throttle_valve_a /= 1000;
+
+            memcpy(&this->m_msgEcuStatus.pot_throttle_valve_b, &frame.data[6], 2);
+            this->m_msgEcuStatus.pot_throttle_valve_b /= 1000;
+
+            break;
+
+        case ECU::MMR_ECU_TEMPERATURES:
+            break;
+
+        case ECU::MMR_ECU_ENGINE_FN1:
+            memcpy(&this->m_msgEcuStatus.nmot, &frame.data, 2);
+
+            memcpy(&this->m_msgEcuStatus.vehicle_speed, &frame.data[2], 2);
+            this->m_msgEcuStatus.vehicle_speed /= 100;
+
+            memcpy(&this->m_msgEcuStatus.gear, &frame.data[4], 2);
+
+            memcpy(&this->m_msgEcuStatus.throttle, &frame.data[6], 2);
+            this->m_msgEcuStatus.throttle /= 100;
+        
+        default:
+            break;
     }
 }

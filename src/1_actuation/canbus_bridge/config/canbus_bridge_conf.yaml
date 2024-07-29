@@ -1,7 +1,7 @@
 /canbus_bridge_node:
   ros__parameters:
     generic:
-      interface: vcan0
+      interface: can0
       bitrate: 1000000
       debug: true
       WCET: 5000000 # ms
@@ -11,3 +11,5 @@
     topic:
       canTxTopic: "/canbus/tx/msg"
       canRxTopic: "/canbus/rx/msg"
+      ecuStatusTopic: "/status/ecu"
+      resStatusTopic: "/status/res"

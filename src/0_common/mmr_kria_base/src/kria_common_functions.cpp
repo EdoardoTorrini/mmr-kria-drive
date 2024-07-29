@@ -1,1 +1,0 @@
-#include "mmr_kria_base/kria_common_functions.hpp"
