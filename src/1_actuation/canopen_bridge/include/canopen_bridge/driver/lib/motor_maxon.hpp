@@ -1,10 +1,11 @@
 #pragma once
 
 #include <canopen_bridge/driver/lib/canopen.hpp>
-#include "mmr_kria_base/edf_setup.hpp"
+#include "mmr_kria_base/configuration.hpp"
 
 #include <ctime>
 #include <cmath>
+#include <unistd.h>
 
 class MaxonMotor
 {

@@ -3,7 +3,8 @@
 #include <canopen_bridge/driver/steer_maxon.hpp>
 #include <canopen_bridge/driver/brake_maxon.hpp>
 
-#include <mmr_kria_base/edf_node.hpp>
+#include <mmr_edf/edf_node.hpp>
+#include <mmr_kria_base/configuration.hpp>
 #include <mmr_kria_base/msg/cmd_motor.hpp>
 #include <mmr_kria_base/msg/actuator_status.hpp>
 

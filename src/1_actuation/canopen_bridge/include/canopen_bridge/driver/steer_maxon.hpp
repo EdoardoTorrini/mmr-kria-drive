@@ -18,7 +18,8 @@ class MaxonSteer : public MaxonMotor
             this->m_nVelocity = nVelocity;
             this->m_fMaxTarget = fMaxTarget;
 
-            this->initSteer();
+            for (int i = 0; i < 10; i++)
+                this->initSteer();
         };
 
         MaxonSteer(int nSocket, int nNodeId, int nHomingMethod=0x25)
@@ -35,6 +36,8 @@ class MaxonSteer : public MaxonMotor
 
             /* start homing */
             this->download<uint16_t>(0x6040, 0x00, 0x001F);
+
+            this->disable();
         }
 
         ~MaxonSteer() { this->disable(); };

@@ -143,7 +143,7 @@ void CANOpenBridge::msgCmdBrakeCallback(mmr_kria_base::msg::CmdMotor::SharedPtr 
     if (msg->enable) {
         /* Enables the brake motor in CST */
         this->m_mBrake = new MaxonBrake(
-            this->m_nSocket, this->m_nSteerID, this->m_nTimeoutMsg,
+            this->m_nSocket, this->m_nBrakeId, this->m_nTimeoutMsg,
             this->m_nMaxTorque, m_nReturnPedalTorque
         );
         return;

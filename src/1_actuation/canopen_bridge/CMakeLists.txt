@@ -11,6 +11,7 @@ find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(can_msgs REQUIRED)
 find_package(mmr_kria_base REQUIRED)
+find_package(mmr_edf REQUIRED)
 
 include_directories(
   include/
@@ -28,6 +29,7 @@ ament_target_dependencies(${PROJECT_NAME}
   std_msgs
   can_msgs
   mmr_kria_base
+  mmr_edf
 )
 
 add_executable(${PROJECT_NAME}_node src/${PROJECT_NAME}_node.cpp)
