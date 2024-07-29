@@ -26,6 +26,7 @@ int main(int argc, char * argv[])
       executor.spin_all(10s);
       node->readMsgFromCANBus();
       node->sendStatusEcu();
+      node->sendStatusRes();
       sched_yield();
     }
 

@@ -13,8 +13,8 @@ CANBusBridge::CANBusBridge() : EDFNode("canbus_bridge_node")
 
     RCLCPP_INFO(
         this->get_logger(),
-        "[ TX Topic ]: %s, [ RX Topic ]: %s",
-        this->m_sTopicTx.c_str(), this->m_sTopicRx.c_str()
+        "[ TX Topic ]: %s, [ RX Topic ]: %s, [ ECU TOPIC ], %s, [ RES TOPIC ]: %s",
+        this->m_sTopicTx.c_str(), this->m_sTopicRx.c_str(), this->m_sEcuStatusTopic.c_str(), this->m_sResStatusTopic.c_str()
     );
 
     this->connectCANBus();
@@ -102,24 +102,34 @@ void CANBusBridge::readMsgFromCANBus()
 {
     struct can_frame frame;
     int nMsgRead = 0;
-    can_msgs::msg::Frame *txMsg;
+    can_msgs::msg::Frame txMsg;
 
     while (nMsgRead < this->m_nMaxMsgs) {
         
         if (read(this->m_nSocket, &frame, sizeof(struct can_frame)) <= 0)
             break;
 
-        txMsg->id = frame.can_id;
-        txMsg->dlc = frame.len;
-        memcpy(&txMsg->data, frame.data, CAN_MAX_DLEN);
+        txMsg.id = frame.can_id;
+        txMsg.dlc = frame.can_dlc;
+        memcpy(&txMsg.data, &frame.data, CAN_MAX_DLEN);
 
-        this->m_pubCANBusTx->publish(*txMsg);
+        this->m_pubCANBusTx->publish(txMsg);
 
         if ((frame.can_id & ECU::MMR_ECU_MASK) == ECU::MMR_ECU_MASK)
             this->readEcuStatus(frame);
+        
+        if (frame.can_id == RES::MMR_RES_STATUS)
+            this->readResStatus(frame);
 
         nMsgRead ++;
     }
+}
+
+void CANBusBridge::readResStatus(can_frame frame)
+{
+    this->m_msgResStatus.emergency = frame.data[0] & RES::RES_SIGNAL_EMERGENCY;
+    this->m_msgResStatus.go_signal = frame.data[0] & RES::RES_SIGNAL_GO;
+    this->m_msgResStatus.bag = frame.data[0] & RES::RES_SIGNAL_BAG;
 }
 
 void CANBusBridge::readEcuStatus(can_frame frame)
@@ -127,34 +137,68 @@ void CANBusBridge::readEcuStatus(can_frame frame)
     switch (frame.can_id)
     {
         case ECU::MMR_ECU_PEDAL_THROTTLE:
-            memcpy(&this->m_msgEcuStatus.pot_pedal_a, &frame.data, 2);
-            this->m_msgEcuStatus.pot_pedal_a /= 1000;
-
-            memcpy(&this->m_msgEcuStatus.pot_pedal_b, &frame.data[2], 2);
-            this->m_msgEcuStatus.pot_pedal_b /= 1000;
-            memcpy(&this->m_msgEcuStatus.pot_throttle_valve_a, &frame.data[4], 2);
-            this->m_msgEcuStatus.pot_throttle_valve_a /= 1000;
-
-            memcpy(&this->m_msgEcuStatus.pot_throttle_valve_b, &frame.data[6], 2);
-            this->m_msgEcuStatus.pot_throttle_valve_b /= 1000;
-
+            this->m_msgEcuStatus.pot_pedal_a = (float)this->endian_cast<uint16_t>(frame.data) / 1000;
+            this->m_msgEcuStatus.pot_pedal_b = (float)this->endian_cast<uint16_t>(frame.data + 2) / 1000;
+            this->m_msgEcuStatus.pot_throttle_valve_a = (float)this->endian_cast<uint16_t>(frame.data + 4) / 100;
+            this->m_msgEcuStatus.pot_throttle_valve_b = (float)this->endian_cast<uint16_t>(frame.data + 6) / 100;
             break;
 
         case ECU::MMR_ECU_TEMPERATURES:
+            this->m_msgEcuStatus.temp_oil = this->endian_cast<uint16_t>(frame.data) - 40;
+            this->m_msgEcuStatus.temp_engine = this->endian_cast<uint16_t>(frame.data + 2) - 40;
+            this->m_msgEcuStatus.temp_intake = this->endian_cast<uint16_t>(frame.data + 4) - 40;
+            this->m_msgEcuStatus.temp_ambient = this->endian_cast<uint16_t>(frame.data + 6) - 40;
             break;
 
         case ECU::MMR_ECU_ENGINE_FN1:
-            memcpy(&this->m_msgEcuStatus.nmot, &frame.data, 2);
-
-            memcpy(&this->m_msgEcuStatus.vehicle_speed, &frame.data[2], 2);
-            this->m_msgEcuStatus.vehicle_speed /= 100;
-
-            memcpy(&this->m_msgEcuStatus.gear, &frame.data[4], 2);
-
-            memcpy(&this->m_msgEcuStatus.throttle, &frame.data[6], 2);
-            this->m_msgEcuStatus.throttle /= 100;
-        
-        default:
+            this->m_msgEcuStatus.nmot = this->endian_cast<uint16_t>(frame.data);
+            this->m_msgEcuStatus.vehicle_speed = (float)this->endian_cast<uint16_t>(frame.data + 2) / 100;
+            this->m_msgEcuStatus.gear = this->endian_cast<uint16_t>(frame.data + 4);
+            this->m_msgEcuStatus.throttle = (float)this->endian_cast<uint16_t>(frame.data+6) / 100;
             break;
+        
+        case ECU::MMR_ECU_PRESSURES:
+            this->m_msgEcuStatus.p_oil = (float)this->endian_cast<uint16_t>(frame.data) / 20;
+            this->m_msgEcuStatus.p_fuel = (float)this->endian_cast<uint16_t>(frame.data + 2) / 100;
+            this->m_msgEcuStatus.p_intake = (float)this->endian_cast<uint16_t>(frame.data + 4) / 10;
+            this->m_msgEcuStatus.p_ambient = (float)this->endian_cast<uint16_t>(frame.data + 6) / 10;
+            break;
+
+        case ECU::MMR_ECU_ENGINE_FN2:
+            this->m_msgEcuStatus.battery_voltage = (float)this->endian_cast<uint16_t>(frame.data) / 1000;
+            this->m_msgEcuStatus.accelerator_pedal = (float)this->endian_cast<uint16_t>(frame.data + 2) / 100;
+            this->m_msgEcuStatus.fan_control = (float)this->endian_cast<uint16_t>(frame.data + 4) / 100;
+            break;
+
+        case ECU::MMR_ECU_CLUTCH_STEER:
+            this->m_msgEcuStatus.clutch_percentage = this->endian_cast<float>(frame.data);
+            this->m_msgEcuStatus.steering_angle = (float)this->endian_cast<uint16_t>(frame.data + 4) / 10;
+            this->m_msgEcuStatus.wheel_angle = (float)this->endian_cast<uint16_t>(frame.data + 6) / 10;
+            break;
+
+        case ECU::MMR_ECU_WHEEL_SPEEDS:
+            this->m_msgEcuStatus.wheel_speed_front_left = (float)this->endian_cast<uint16_t>(frame.data) / 100;
+            this->m_msgEcuStatus.wheel_speed_front_right = (float)this->endian_cast<uint16_t>(frame.data + 2) / 100;
+            this->m_msgEcuStatus.wheel_speed_rear_left = (float)this->endian_cast<uint16_t>(frame.data + 4) / 100;
+            this->m_msgEcuStatus.wheel_speed_rear_right = (float)this->endian_cast<uint16_t>(frame.data + 6) / 100;
+            break;
+
+        case ECU::MMR_ECU_SAFETY_CHECK:
+            this->m_msgEcuStatus.p_brake_rear = (float)this->endian_cast<uint16_t>(frame.data) / 200;
+            this->m_msgEcuStatus.p_brake_front = (float)this->endian_cast<uint16_t>(frame.data + 2) / 200;
+            this->m_msgEcuStatus.error_throttle = (float)this->endian_cast<uint16_t>(frame.data + 4);
+            this->m_msgEcuStatus.error_pedal = (float)this->endian_cast<uint16_t>(frame.data + 6);
+            break;
+
+        case ECU::MMR_ECU_EBS_PRESSURE:
+            this->m_msgEcuStatus.p_ebs_1 = this->endian_cast<float>(frame.data);
+            this->m_msgEcuStatus.p_ebs_2 = this->endian_cast<float>(frame.data + 4);
+            break;
+        
+        case ECU::MMR_ECU_SET_LAUNCH_CONTROL:
+            this->m_msgEcuStatus.bool_ack_ideal_launch_control = this->endian_cast<uint8_t>(frame.data);
+            this->m_msgEcuStatus.bool_ack_real_launch_control = this->endian_cast<uint8_t>(frame.data + 1);
+            break;
+        
     }
 }

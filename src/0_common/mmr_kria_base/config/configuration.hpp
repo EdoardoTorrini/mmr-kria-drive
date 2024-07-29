@@ -38,7 +38,7 @@ namespace ECU {
         MMR_ECU_ENGINE_FN1,
         MMR_ECU_PRESSURES,
         MMR_ECU_ENGINE_FN2,
-        MMR_ECU_CLUTCH,
+        MMR_ECU_CLUTCH_STEER,
         MMR_ECU_WHEEL_SPEEDS,
         MMR_ECU_SAFETY_CHECK,
         MMR_ECU_EBS_PRESSURE,

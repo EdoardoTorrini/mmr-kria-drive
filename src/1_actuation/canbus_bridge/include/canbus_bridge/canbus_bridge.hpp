@@ -4,9 +4,11 @@
 #include <rclcpp/exceptions.hpp>
 #include <can_msgs/msg/frame.hpp>
 
-#include <mmr_kria_base/edf_node.hpp>
+#include <mmr_edf/edf_node.hpp>
 #include <mmr_kria_base/msg/ecu_status.hpp>
 #include <mmr_kria_base/msg/res_status.hpp>
+
+#include <mmr_kria_base/configuration.hpp>
 
 #include <linux/can.h>
 #include <linux/can/raw.h>
@@ -16,6 +18,9 @@
 #include <string.h>
 #include <net/if.h>
 #include <sys/ioctl.h>
+
+#include <bit>
+#include <algorithm>
 
 class CANBusBridge : public EDFNode
 {
@@ -47,6 +52,19 @@ class CANBusBridge : public EDFNode
 
         void connectCANBus();
         void readEcuStatus(can_frame frame);
+        void readResStatus(can_frame frame);
+
+        template <typename T, std::endian Endianness = std::endian::little>
+        T endian_cast(const uint8_t* bytes) {
+            if (std::endian::native == Endianness)
+                return *(const T*)bytes;
+            else {
+                std::array<uint8_t, sizeof(T)> buf;
+                std::copy(bytes, bytes + sizeof(T), buf.rbegin());
+                return *(const T*)buf.data();
+            }
+        }
+
 
     public:
 
@@ -55,5 +73,5 @@ class CANBusBridge : public EDFNode
 
         void readMsgFromCANBus();
         void sendStatusEcu() { if (this->m_pubEcuStatus != nullptr) this->m_pubEcuStatus->publish(this->m_msgEcuStatus); };
-
+        void sendStatusRes() { if (this->m_pubResStatus != nullptr) this->m_pubResStatus->publish(this->m_msgResStatus); };
 };
