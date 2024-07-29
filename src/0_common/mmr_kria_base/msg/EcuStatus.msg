@@ -24,6 +24,10 @@ float32 battery_voltage
 float32 accelerator_pedal
 float32 fan_control
 
+float32 clutch_percentage
+float32 steering_angle
+float32 wheel_angle
+
 float32 wheel_speed_front_left
 float32 wheel_speed_front_right
 float32 wheel_speed_rear_left
