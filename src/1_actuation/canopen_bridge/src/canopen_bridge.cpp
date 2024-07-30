@@ -123,6 +123,9 @@ void CANOpenBridge::msgCmdSteerCallback(mmr_kria_base::msg::CmdMotor::SharedPtr 
         return;
     }
 
+    if (msg->disable)
+        delete this->m_mSteer;
+
     if (msg->homing) {
         this->m_mSteer = new MaxonSteer(this->m_nSocket, m_nSteerID);
         return;
@@ -148,6 +151,9 @@ void CANOpenBridge::msgCmdBrakeCallback(mmr_kria_base::msg::CmdMotor::SharedPtr 
         );
         return;
     }
+
+    if (msg->disable)
+        delete this->m_mBrake;
 
     msg->brake_torque *= 1000;
     int nTorque = std::abs(std::round(msg->brake_torque));
