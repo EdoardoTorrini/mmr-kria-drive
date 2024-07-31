@@ -1,4 +1,4 @@
-#include "mmr_edf/edf_node.hpp"
+#include "mmr_edf/mmr_edf.hpp"
 
 void EDFNode::configureEDFScheduler(int period_ns, int runtime_ns, int deadline_ns) {
 

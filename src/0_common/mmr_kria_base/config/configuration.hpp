@@ -75,7 +75,7 @@ namespace MOTOR {
 
     enum MMR_CAN_ID_BASE {
         REQUEST_SDO = 0x600,
-        RESPONSE_SDO = 580,
+        RESPONSE_SDO = 0x580,
     };
 
     enum ACTUATOR_STATUS {
