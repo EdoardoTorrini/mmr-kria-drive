@@ -1,1 +1,1 @@
-# Autonomous Base Stack for MoRe Modena Racing Team Driverless
+# Autonomous Stack for MoRe Modena Racing Team Driverless - Basic Implementation
