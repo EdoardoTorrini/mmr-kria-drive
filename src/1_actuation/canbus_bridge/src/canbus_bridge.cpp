@@ -19,12 +19,15 @@ CANBusBridge::CANBusBridge() : EDFNode("canbus_bridge_node")
 
     this->connectCANBus();
 
+    auto qos = rclcpp::QoS(rclcpp::KeepLast(1), rmw_qos_profile_sensor_data);
+
     this->m_subCANRx = this->create_subscription<can_msgs::msg::Frame>(
         this->m_sTopicRx, 1, std::bind(&CANBusBridge::msgCANBusRxCallback, this, std::placeholders::_1));
 
     this->m_pubCANBusTx = this->create_publisher<can_msgs::msg::Frame>(this->m_sTopicTx, 1);
-    this->m_pubEcuStatus = this->create_publisher<mmr_kria_base::msg::EcuStatus>(this->m_sEcuStatusTopic, 1);
-    this->m_pubResStatus = this->create_publisher<mmr_kria_base::msg::ResStatus>(this->m_sResStatusTopic, 1);
+    this->m_pubEcuStatus = this->create_publisher<mmr_kria_base::msg::EcuStatus>(this->m_sEcuStatusTopic, qos);
+    this->m_pubResStatus = this->create_publisher<mmr_kria_base::msg::ResStatus>(this->m_sResStatusTopic, qos);
+    this->m_pubMissionSelect = this->create_publisher<std_msgs::msg::Int8>(this->m_sMissionSelectTopic, 1);
 }
 
 void CANBusBridge::loadParameters()
@@ -41,6 +44,7 @@ void CANBusBridge::loadParameters()
     declare_parameter("topic.canRxTopic", "");
     declare_parameter("topic.ecuStatusTopic", "");
     declare_parameter("topic.resStatusTopic", "");
+    declare_parameter("topic.missionSelectTopic", "");
     
     get_parameter("generic.interface", this->m_sInterface);
     get_parameter("generic.bitrate", this->m_nBitrate);
@@ -54,6 +58,7 @@ void CANBusBridge::loadParameters()
     get_parameter("topic.canRxTopic", this->m_sTopicRx);
     get_parameter("topic.ecuStatusTopic", this->m_sEcuStatusTopic);
     get_parameter("topic.resStatusTopic", this->m_sResStatusTopic);
+    get_parameter("topic.missionSelectTopic", this->m_sMissionSelectTopic);
 
 }
 
@@ -121,7 +126,31 @@ void CANBusBridge::readMsgFromCANBus()
         if (frame.can_id == RES::MMR_RES_STATUS)
             this->readResStatus(frame);
 
+        if (frame.can_id == COCKPIT::MMR_MISSION_SELECTED) {
+            std_msgs::msg::Int8 msgMission;
+            msgMission.data = frame.data[0];
+
+            this->m_pubMissionSelect->publish(msgMission);
+        }
+
         nMsgRead ++;
+    }
+}
+
+void CANBusBridge::sendStatus()
+{
+    if (this->m_pubEcuStatus != nullptr) {
+        this->m_msgEcuStatus.header.stamp.sec = std::chrono::duration_cast<std::chrono::seconds>(timing::Clock::get_time()).count();
+        this->m_msgEcuStatus.header.frame_id = "ECU_STATE";
+
+        this->m_pubEcuStatus->publish(this->m_msgEcuStatus);
+    }
+
+    if (this->m_pubResStatus != nullptr) {
+        this->m_msgResStatus.header.stamp.sec = std::chrono::duration_cast<std::chrono::seconds>(timing::Clock::get_time()).count();
+        this->m_msgResStatus.header.frame_id = "RES_STATE";
+
+        this->m_pubResStatus->publish(this->m_msgResStatus);
     }
 }
 

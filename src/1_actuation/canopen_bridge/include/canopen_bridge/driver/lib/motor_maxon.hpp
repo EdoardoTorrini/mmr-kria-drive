@@ -44,7 +44,7 @@ class MaxonMotor
         void init();
         void disable();
 
-        void toggle_new_pos();
+        void toggle_new_pos(MOTOR::IDX_TOGGLE_NEW_POS nType);
 
     public:
 

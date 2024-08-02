@@ -1,3 +1,5 @@
+# Standard ROS 2 message header
+std_msgs/Header header
 
 # each value rapresent the voltage 
 float32 pot_pedal_a

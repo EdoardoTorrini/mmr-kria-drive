@@ -13,3 +13,4 @@
       canRxTopic: "/canbus/rx/msg"
       ecuStatusTopic: "/status/ecu"
       resStatusTopic: "/status/res"
+      missionSelectTopic: "/mission/selected"

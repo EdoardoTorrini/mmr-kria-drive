@@ -9,6 +9,14 @@ class MaxonBrake : public MaxonMotor
         const int m_nModeOfOp = MOTOR::CST;
         int m_nMaxTorque, m_nReturnPedalTorque;
 
+        void initBrake() {
+            /* set modes of operation */
+            this->download<uint8_t>(0x6060, 0x00, this->m_nModeOfOp);
+
+            /* enable device */
+            this->init();
+        }
+
     public:
 
         MaxonBrake(int nSocket, int nNodeId, int nTimeOutMsg, int nMaxTorque, int nReturnPedalTorque)
@@ -22,14 +30,6 @@ class MaxonBrake : public MaxonMotor
         }
 
         ~MaxonBrake() { this->disable(); };
-
-        void initBrake() {
-            /* set modes of operation */
-            this->download<uint8_t>(0x6060, 0x00, this->m_nModeOfOp);
-
-            /* enable device */
-            this->init();
-        }
 
         void writeTargetTorque(int nTargetTorque) {
             uint16_t nTarget = nTargetTorque > 0 ? static_cast<uint16_t>(nTargetTorque) : 0;

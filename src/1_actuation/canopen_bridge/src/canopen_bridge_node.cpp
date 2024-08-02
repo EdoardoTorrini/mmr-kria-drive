@@ -23,7 +23,8 @@ int main(int argc, char * argv[])
     
     while (true)
     {
-      executor.spin_all(10s);
+      executor.spin_all(10ms);
+      node->monitoringClutch();
       sched_yield();
     }
 

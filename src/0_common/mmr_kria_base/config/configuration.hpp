@@ -1,5 +1,9 @@
 #pragma once
 
+#include <unordered_map>
+#include <string_view>
+#include <chrono>
+
 namespace RES {
 
     enum MMR_CAN_MSG_ID {
@@ -78,12 +82,22 @@ namespace MOTOR {
         RESPONSE_SDO = 0x580,
     };
 
-    enum ACTUATOR_STATUS {
+    enum class ACTUATOR_STATUS{
         DISABLE = 0,
-        ENABLE,
         POSITION_MODE,
         TORQUE_MODE,
+        ENGAGE,
+        DISENGAGE,
         ERROR,
+    };
+
+    enum INDEX_CLUTCH {
+        CLUTCH_SET_INIT = 0,
+        CLUTCH_SET_DISENGAGED,
+        CLUTCH_SET_ENGAGED_1,
+        CLUTCH_SET_ENGAGED_2,
+        CLUTCH_SET_ENGAGED_3,
+        CLUTCH_SET_ENGAGED_4,
     };
 
     enum MODE_OF_OPERATION {
@@ -95,4 +109,43 @@ namespace MOTOR {
         CST = 0x0A,
     };
 
+    enum class IDX_TOGGLE_NEW_POS {
+        IDX_WRITE_ABS_POS = 0,
+        IDX_WRITE_REL_POS,
+    };
+
 };
+
+namespace AS {
+
+    enum STATE {
+        OFF = 0,
+        CHECKING,
+        READY,
+        DRIVING,
+        FINISHED,
+        EMERGENCY
+    };
+
+    const inline std::unordered_map<STATE, std::string_view> AsStateStringLookup {
+        { STATE::OFF, "OFF" },
+        { STATE::CHECKING, "CHECKING"},
+        { STATE::READY, "READY" },
+        { STATE::DRIVING, "DRIVING" },
+        { STATE::FINISHED, "FINISHED" },
+        { STATE::EMERGENCY, "EMERGENCY" }
+    };
+
+};
+
+namespace timing {
+    using namespace std::chrono;
+
+    using Tick = milliseconds;
+
+    struct Clock {
+        static inline Tick get_time() {
+            return duration_cast<Tick>(steady_clock::now().time_since_epoch());
+        }
+    };
+}

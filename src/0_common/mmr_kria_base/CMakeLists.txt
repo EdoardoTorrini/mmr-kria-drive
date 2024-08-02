@@ -8,6 +8,8 @@ endif()
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(sensor_msgs REQUIRED)
 
 find_package(rosidl_default_generators REQUIRED)
 
@@ -16,8 +18,12 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/ActuatorStatus.msg"
   "msg/EcuStatus.msg"
   "msg/ResStatus.msg"
+  "msg/UVCoordinate.msg"
+  "msg/MeshFile.msg"
+  "msg/Marker.msg"
+  "msg/MarkerArray.msg"
   # Add custom msg dependecies to standard ROS2 msgs
-  DEPENDENCIES std_msgs
+  DEPENDENCIES std_msgs geometry_msgs sensor_msgs
 )
 
 install(FILES

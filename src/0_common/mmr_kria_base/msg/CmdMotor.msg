@@ -13,4 +13,8 @@ float64 brake_torque
 # target position for the steer and clutch - leave empty if the cmd is for brake
 float64 wheel_angle
 
+# target status for the clutch - leave empty if the cmd is for brake and steer
+bool disengaged
+
 bool disable
+

@@ -46,8 +46,17 @@ void MaxonMotor::disable()
     this->download<uint16_t>(0x6040, 0x00, 0x0000);
 }
 
-void MaxonMotor::toggle_new_pos()
+void MaxonMotor::toggle_new_pos(MOTOR::IDX_TOGGLE_NEW_POS nType)
 {
+    switch (nType)
+    {
+        case MOTOR::IDX_TOGGLE_NEW_POS::IDX_WRITE_ABS_POS:
+            this->download<uint16_t>(0x6040, 0x00, 0x003F);
+            break;
+
+        case MOTOR::IDX_TOGGLE_NEW_POS::IDX_WRITE_REL_POS:
+            this->download<uint16_t>(0x6040, 0x00, 0x007F);
+            break;
+    }
     this->download<uint16_t>(0x6040, 0x00, 0x000F);
-    this->download<uint16_t>(0x6040, 0x00, 0x003F);
 }
